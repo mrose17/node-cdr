@@ -1,0 +1,26 @@
+{
+  "name"           : "cdr"
+, "version"        : "0.0.1"
+, "description"    : "node.js module for decoding CDR packets"
+, "author": {
+    "name"           : "Marshall Rose"
+  , "email"          : "mrose17@gmail.com"
+  }
+, "dependencies": {
+    "zmq"            : "2.5.1"
+  , "iconv-lite"     : "0.2.11"
+  }
+, "repository": {
+    "type"         : "git",
+    "url"          : "https://github.com/mrose17/node-cdr.git"
+  } 
+, "bugs"           : {
+    "url"          : "https://github.com/mrose17/node-cdr/issues"
+  }
+, "keywords"       : [ "CDR", "CORBA", "Common Data Representation" ]
+, "main"           : "./cdr.js"
+, "engines": {
+    "node"         : ">=0.10"
+  }
+, "readmeFilename" : "README.md"
+}
