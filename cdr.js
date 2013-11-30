@@ -8,15 +8,15 @@ var os    = require('os')
   ;
 
 
-var readBuffer = function(buffer) {
-  if (!(this instanceof readBuffer)) return new readBuffer(readBuffer);
+var readBuffer = function(buffer, littleP) {
+  if (!(this instanceof readBuffer)) return new readBuffer(buffer);
 
   this.data = Buffer.isBuffer(buffer) ? buffer : new Buffer(buffer, 'binary');
   this.index = 0;
   this.encaps = [];
   this.endOfChunk = -1;
 
-  this.byteOrder = os.endianness() === 'LE';
+  this.byteOrder = (typeof littleP !== 'undefined') ? (!!littleP) : (os.endianness() === 'LE');
 };
 
 
@@ -142,13 +142,13 @@ readBuffer.prototype.number = function(prefix, octets) {
 readBuffer.prototype.short        = function() { return this.number('readInt16',  2); };
 readBuffer.prototype.ushort       = function() { return this.number('readUInt16', 2); };
 readBuffer.prototype.long         = function() { return this.number('readInt32',  4); };
-readBuffer.prototype.ulong        = function() { return this.number('readUint32', 4); };
+readBuffer.prototype.ulong        = function() { return this.number('readUInt32', 4); };
 readBuffer.prototype.float        = function() { return this.number('readFloat',  4); };
 readBuffer.prototype.double       = function() { return this.number('readDouble', 8); };
 
-readBuffer.protototype.longlong   = function() { oops('unsupported type: longlong');   };
-readBuffer.protototype.ulonglong  = function() { oops('unsupported type: ulonglong');  };
-readBuffer.protototype.longdouble = function() { oops('unsupported type: longdouble'); };
+readBuffer.prototype.longlong   = function() { oops('unsupported type: longlong');   };
+readBuffer.prototype.ulonglong  = function() { oops('unsupported type: ulonglong');  };
+readBuffer.prototype.longdouble = function() { oops('unsupported type: longdouble'); };
 
 readBuffer.prototype.boolean = function() {
   var result;
@@ -181,10 +181,10 @@ readBuffer.prototype.wstring = function(length) {
 };
 
 
-var decoder = function(buffer) {
-  if (!(this instanceof decoder)) return new decoder(buffer);
+var decoder = function(buffer, littleP) {
+  if (!(this instanceof decoder)) return new decoder(buffer, littleP);
 
-  this.data = new readBuffer(buffer);
+  this.data = new readBuffer(buffer, littleP);
   this.nestingLevel = 0;
   this.chunking = false;
 };
@@ -487,30 +487,13 @@ decoder.prototype.recursive = function(tc) {
 decoder.prototype.deMarshal = function(tc) {
   var f, type;
 
+  if (tc === 'any')      return this.any();
+  if (tc === 'TypeCode') return this.TypeCode();
   f = { null       : function() { return null; }
-      , void       : function() {              }
-      , any        : this.any
-      , typeCode   : this.TypeCode
+      , void       : function() { return     ; }
       };
   if (!!f[tc]) return (f[tc])();
-
-  f = { boolean    : true
-      , short      : true
-      , long       : true
-      , ushort     : true
-      , ulong      : true
-      , longlong   : true
-      , ulonglong  : true
-      , float      : true
-      , double     : true
-      , longdouble : true
-      , char       : true
-      , octet      : true
-      , wchar      : true
-      , string     : true
-      , wstring    : true
-      };
-  if (!!f[tc]) return this.data[tc]();
+  if (!!this.data[tc]) return this.data[tc]();
 
   type = tc[0];
   f = { string            : function(tc) {
