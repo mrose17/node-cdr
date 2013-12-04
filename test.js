@@ -26,13 +26,14 @@ for (test in tests) {
     }
 
     console.log('frame more=' + (!!(flags & 0x01)) + ' length=' + len);
+console.log(data.slice(i, i+ len).toString('hex'));
     [ function() { console.log(data.slice(i, i + len).toString()); }
     , function() { 
         littleP = (data[i] & 0x01);
         console.log((littleP ? 'little' : 'big') + ' endian');
       }
-    , function() { console.log(JSON.stringify(new cdr.decoder(data.slice(i, i + len), littleP).deMarshal('any'))); }
-    , function() { console.log(JSON.stringify(new cdr.decoder(data.slice(i, i + len), littleP).deMarshal('any'))); }
+    , function() { console.log(JSON.stringify(new cdr.decoder(data.slice(i, i + len), littleP).deMarshal('struct'))); }
+    , function() { console.log(JSON.stringify(new cdr.decoder(data.slice(i, i + len), littleP).deMarshal('struct'))); }
     ][m]();
     i += len;
 
